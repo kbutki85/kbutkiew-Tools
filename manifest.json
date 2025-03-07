@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "kbutkiew Tools",
+  "version": "2.1.0",
+  "description": "Professional productivity tools for everyday work in Dentsu",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "activeTab",
+    "notifications",
+    "alarms"
+  ],
+  "web_accessible_resources": [{
+    "resources": ["icons/icon48.png", "icons/icon16.png", "reminder.html", "reminder.js"],
+    "matches": ["<all_urls>"]
+  }],
+  "host_permissions": [
+    "https://dentsu-poland.atlassian.net/*",
+    "https://app.tempo.io/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://dentsu-poland.atlassian.net/*",
+        "https://app.tempo.io/timesheets/jira/worklog-form*"
+      ],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png"
+  }
+}
