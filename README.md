@@ -4,12 +4,33 @@
 
 ## Installation
 
-1. Download the `kbutkiew-tools.zip` file
+There are several ways to install this extension:
+
+### Method 1: Download from GitHub Release
+1. Go to the [Releases page](https://github.com/kbutki85/kbutkiew-Tools/releases)
+2. Download the latest `kbutkiew-tools.zip` file
+3. Open Chrome and navigate to `chrome://extensions`
+4. Enable "Developer mode" (top-right corner)
+5. Drag and drop the downloaded .zip file onto the extensions page
+
+### Method 2: Clone from GitHub
+1. Clone the repository:
+   ```
+   git clone https://github.com/kbutki85/kbutkiew-Tools.git
+   ```
 2. Open Chrome and navigate to `chrome://extensions`
 3. Enable "Developer mode" (top-right corner)
-4. Drag and drop the downloaded .zip file onto the extensions page
-   or
-   Click "Load unpacked" and select the unzipped folder
+4. Click "Load unpacked" and select the cloned folder
+
+### Method 3: Download Repository as ZIP
+1. Visit the [GitHub repository](https://github.com/kbutki85/kbutkiew-Tools)
+2. Click the "Code" button and select "Download ZIP"
+3. Extract the ZIP file
+4. Open Chrome and navigate to `chrome://extensions`
+5. Enable "Developer mode" (top-right corner)
+6. Click "Load unpacked" and select the extracted folder
+
+Your previous settings will be preserved when updating to a newer version.
 
 ## Features
 
@@ -71,7 +92,7 @@
    - Find "kbutkiew Tools"
    - Click "Remove"
 2. Install the new version:
-   - Follow the installation steps described above
+   - Follow any of the installation methods described above
    - Your previous settings will be preserved
 
 ## Changes in the Latest Version
