@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.1.1 (2025-10-20)
+
+### Fixed
+- Fixed automatic Area selection in Tempo "Log Time" modal
+- Added support for EU Tempo domain (app.eu.tempo.io)
+- Improved Area field detection to work with new HTML structure
+- Enhanced React Select component compatibility
+
+### Improved
+- Code cleanup - removed debug logs for production
+- All texts and comments translated to English
+- Better handling of dynamic content in Tempo modals
+
 ## Version 2.1.0 (2025-02-26)
 
 ### Added

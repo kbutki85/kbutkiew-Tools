@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "kbutkiew Tools",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Professional productivity tools for everyday work in Dentsu",
   "permissions": [
     "storage",
@@ -17,7 +17,8 @@
   }],
   "host_permissions": [
     "https://dentsu-poland.atlassian.net/*",
-    "https://app.tempo.io/*"
+    "https://app.tempo.io/*",
+    "https://app.eu.tempo.io/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -33,7 +34,8 @@
     {
       "matches": [
         "https://dentsu-poland.atlassian.net/*",
-        "https://app.tempo.io/timesheets/jira/worklog-form*"
+        "https://app.tempo.io/timesheets/jira/worklog-form*",
+        "https://app.eu.tempo.io/timesheets/jira/worklog-form*"
       ],
       "js": ["content.js"],
       "all_frames": true,

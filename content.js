@@ -5,7 +5,7 @@ function safeExecute() {
   try {
     // Check if we are in an iframe
     const isInIframe = window !== window.top;
-    
+
     // Logger
     const log = (msg) => {
       try {
@@ -14,9 +14,10 @@ function safeExecute() {
     };
 
     // Check if we are directly on Tempo page
-    if (window.location.href.includes('app.tempo.io/timesheets/jira/worklog-form')) {
+    if (window.location.href.includes('app.tempo.io/timesheets/jira/worklog-form') ||
+        window.location.href.includes('app.eu.tempo.io/timesheets/jira/worklog-form')) {
       log('Detected Tempo worklog form page');
-      
+
       // Get user settings
       chrome.storage.sync.get(['userRole', 'areaSetterEnabled'], (result) => {
         const userRole = result.userRole || 'BED';
@@ -28,7 +29,8 @@ function safeExecute() {
     }
     // Check different Tempo URL variants
     else if (window.location.href.includes('/plugins/servlet/ac/io.tempo.jira/tempo-app') || 
-             window.location.href.includes('app.tempo.io')) {
+             window.location.href.includes('app.tempo.io') ||
+             window.location.href.includes('app.eu.tempo.io')) {
       log('Detected Tempo timesheet page');
       
       // Inject helper script right after page load
@@ -63,11 +65,11 @@ function safeExecute() {
 function setAreaInTempoForm(userRole) {
   let attempts = 0;
   const maxAttempts = 20;
-  
+
   // Check every 500ms
   const checkInterval = setInterval(() => {
     attempts++;
-    
+
     try {
       // Find the form
       const form = document.querySelector('#worklogForm');
@@ -77,39 +79,76 @@ function setAreaInTempoForm(userRole) {
         }
         return;
       }
-      
-      // Find Area field
-      const areaField = document.querySelector('#_Area_-5') || 
-                       document.querySelector('[id*="Area"]');
-      
+
+      // Find Area field - updated to match new structure
+      let areaField = document.querySelector('#_Area_-5');
+
+      // Try the container class
+      if (!areaField) {
+        areaField = document.querySelector('.css-b62m3t-container[id*="Area"]');
+      }
+
+      // Try finding by label
+      if (!areaField) {
+        const labels = document.querySelectorAll('label');
+        for (const label of labels) {
+          if (label.textContent.includes('Area')) {
+            const parentRow = label.closest('[data-testid="rowAnimationWrapper"]') ||
+              label.closest('[data-testid="staticListWorkAttributeField"]');
+            if (parentRow) {
+              areaField = parentRow.querySelector('.css-b62m3t-container') ||
+                parentRow.querySelector('[id*="Area"]');
+              if (areaField) break;
+            }
+          }
+        }
+      }
+
       if (!areaField) {
         if (attempts >= maxAttempts) {
           clearInterval(checkInterval);
         }
         return;
       }
-      
+
       // Check if Area is already set
       const currentValue = areaField.querySelector('[class*="singleValue"]');
       if (currentValue && currentValue.textContent.includes(userRole)) {
         clearInterval(checkInterval);
         return;
       }
-      
-      // Find input
-      const input = areaField.querySelector('input');
-      if (!input) {
-        clearInterval(checkInterval);
+
+      // Find the control and input
+      const control = areaField.querySelector('.css-lherp9-control') ||
+        areaField.querySelector('div[class*="control"]');
+
+      if (!control) {
+        if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+        }
         return;
       }
-      
+
+      const input = control.querySelector('input[id*="Area"]') ||
+        control.querySelector('input[role="combobox"]') ||
+        control.querySelector('input');
+
+      if (!input) {
+        if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+        }
+        return;
+      }
+
       // Click to open dropdown
+      input.focus();
       input.click();
-      
+      control.click();
+
       // Set value
       setTimeout(() => {
         const options = document.querySelectorAll('[class*="option"]');
-        
+
         let found = false;
         for (const option of options) {
           if (option.textContent.includes(userRole)) {
@@ -118,10 +157,11 @@ function setAreaInTempoForm(userRole) {
             break;
           }
         }
-        
+
         if (!found) {
           input.value = userRole;
           input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
           input.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'Enter',
             code: 'Enter',
@@ -129,10 +169,10 @@ function setAreaInTempoForm(userRole) {
             bubbles: true
           }));
         }
-        
+
         clearInterval(checkInterval);
       }, 500);
-      
+
     } catch (error) {
       clearInterval(checkInterval);
     }
