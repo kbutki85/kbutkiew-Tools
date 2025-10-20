@@ -1,5 +1,44 @@
 // Content script for kbutkiew Tools extension
 
+// Function to set focus on Duration field
+function setFocusOnDurationField() {
+  try {
+    // Find Duration field by different methods
+    let durationField = document.querySelector('#durationField');
+    
+    if (!durationField) {
+      durationField = document.querySelector('[data-testid="durationField"]');
+    }
+    
+    if (!durationField) {
+      durationField = document.querySelector('input[name="durationField"]');
+    }
+    
+    if (!durationField) {
+      // Try finding by label
+      const labels = document.querySelectorAll('label');
+      for (const label of labels) {
+        if (label.textContent.includes('Duration')) {
+          const parentRow = label.closest('[data-testid="dateAndTimeField"]') ||
+            label.closest('div[class*="kdTzIY"]') ||
+            label.closest('div');
+          if (parentRow) {
+            durationField = parentRow.querySelector('input[type="text"]');
+            if (durationField) break;
+          }
+        }
+      }
+    }
+    
+    if (durationField) {
+      durationField.focus();
+      durationField.click();
+    }
+  } catch (e) {
+    // Ignore errors
+  }
+}
+
 // Function for safely executing code
 function safeExecute() {
   try {
@@ -171,6 +210,11 @@ function setAreaInTempoForm(userRole) {
         }
 
         clearInterval(checkInterval);
+
+        // Set focus on Duration field after Area is set
+        setTimeout(() => {
+          setFocusOnDurationField();
+        }, 300);
       }, 500);
 
     } catch (error) {

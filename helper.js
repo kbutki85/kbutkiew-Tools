@@ -44,17 +44,17 @@
         const hasWorklogForm = !!dialog.querySelector('#worklogForm');
         const hasDurationField = !!dialog.querySelector('#durationField');
         const hasTimeField = !!dialog.querySelector('input[name="timeSpent"]');
-        const hasDateField = !!dialog.querySelector('input[type="date"]') || 
-                            !!dialog.querySelector('[aria-label*="date"]') ||
-                            !!dialog.querySelector('#startedField');
-        const hasTimeLabel = Array.from(dialog.querySelectorAll('label')).some(l => 
-                            l.textContent.toLowerCase().includes('time') || 
-                            l.textContent.toLowerCase().includes('duration') ||
-                            l.textContent.toLowerCase().includes('hours'));
-        
+        const hasDateField = !!dialog.querySelector('input[type="date"]') ||
+          !!dialog.querySelector('[aria-label*="date"]') ||
+          !!dialog.querySelector('#startedField');
+        const hasTimeLabel = Array.from(dialog.querySelectorAll('label')).some(l =>
+          l.textContent.toLowerCase().includes('time') ||
+          l.textContent.toLowerCase().includes('duration') ||
+          l.textContent.toLowerCase().includes('hours'));
+
         if (hasWorklogForm || hasDurationField || hasTimeField || hasDateField || hasTimeLabel) {
           clearInterval(checkInterval);
-          
+
           // Find and set Area field
           setAreaInDialog(dialog);
           return;
@@ -63,17 +63,56 @@
     }
   }
 
+  // Function to set focus on Duration field
+  function setFocusOnDurationField(dialog) {
+    try {
+      // Find Duration field by different methods
+      let durationField = dialog.querySelector('#durationField');
+      
+      if (!durationField) {
+        durationField = dialog.querySelector('[data-testid="durationField"]');
+      }
+      
+      if (!durationField) {
+        durationField = dialog.querySelector('input[name="durationField"]');
+      }
+      
+      if (!durationField) {
+        // Try finding by label
+        const labels = dialog.querySelectorAll('label');
+        for (const label of labels) {
+          if (label.textContent.includes('Duration')) {
+            const parentRow = label.closest('[data-testid="dateAndTimeField"]') ||
+              label.closest('div[class*="kdTzIY"]') ||
+              label.closest('div');
+            if (parentRow) {
+              durationField = parentRow.querySelector('input[type="text"]');
+              if (durationField) break;
+            }
+          }
+        }
+      }
+      
+      if (durationField) {
+        durationField.focus();
+        durationField.click();
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
   // Function to find Area field in dialog
   function setAreaInDialog(dialog) {
     let attempts = 0;
     const checkArea = setInterval(() => {
       attempts++;
-      
+
       if (attempts > 20) {
         clearInterval(checkArea);
         return;
       }
-      
+
       // Look for Area field using different methods
       let areaField = dialog.querySelector('#_Area_-5');
 
@@ -81,25 +120,25 @@
       if (!areaField) {
         areaField = dialog.querySelector('.css-b62m3t-container[id*="Area"]');
       }
-      
+
       // Search by labels
       if (!areaField) {
         const labels = dialog.querySelectorAll('label');
         for (const label of labels) {
           if (label.textContent.includes('Area')) {
             // Find the parent container with the react-select
-            const parentRow = label.closest('[data-testid="rowAnimationWrapper"]') || 
-                             label.closest('[data-testid="staticListWorkAttributeField"]') ||
-                             label.closest('div[class*="jbuQR"]');
+            const parentRow = label.closest('[data-testid="rowAnimationWrapper"]') ||
+              label.closest('[data-testid="staticListWorkAttributeField"]') ||
+              label.closest('div[class*="jbuQR"]');
             if (parentRow) {
-              areaField = parentRow.querySelector('.css-b62m3t-container') || 
-                         parentRow.querySelector('[id*="Area"]');
+              areaField = parentRow.querySelector('.css-b62m3t-container') ||
+                parentRow.querySelector('[id*="Area"]');
               if (areaField) break;
             }
           }
         }
       }
-      
+
       // Search for selects by looking for the specific react-select structure
       if (!areaField) {
         const selects = dialog.querySelectorAll('.css-b62m3t-container');
@@ -109,7 +148,7 @@
             areaField = select;
             break;
           }
-          
+
           // Check by label association
           const parentDiv = select.closest('[data-testid="staticListWorkAttributeField"]');
           if (parentDiv) {
@@ -121,7 +160,7 @@
           }
         }
       }
-      
+
       if (areaField) {
         clearInterval(checkArea);
 
@@ -130,34 +169,34 @@
         if (currentValue && currentValue.textContent.includes(userRole)) {
           return;
         }
-        
+
         // Find the control div and input
-        const control = areaField.querySelector('.css-lherp9-control') || 
-                       areaField.querySelector('div[class*="control"]');
-        
+        const control = areaField.querySelector('.css-lherp9-control') ||
+          areaField.querySelector('div[class*="control"]');
+
         if (!control) {
           return;
         }
-        
+
         // Find the input element
-        const input = control.querySelector('input[id*="Area"]') || 
-                     control.querySelector('input[role="combobox"]') ||
-                     control.querySelector('input');
-        
+        const input = control.querySelector('input[id*="Area"]') ||
+          control.querySelector('input[role="combobox"]') ||
+          control.querySelector('input');
+
         if (!input) {
           return;
         }
-        
+
         // Click to open dropdown
         input.focus();
         input.click();
         control.click();
-        
+
         // Wait for dropdown and select option
         setTimeout(() => {
           // Look for options in the dropdown menu
           const options = document.querySelectorAll('[class*="option"]');
-          
+
           let found = false;
           for (const option of options) {
             if (option.textContent.includes(userRole)) {
@@ -166,7 +205,7 @@
               break;
             }
           }
-          
+
           if (!found) {
             // Fallback: try typing the value
             if (input) {
@@ -181,6 +220,11 @@
               }));
             }
           }
+
+          // Set focus on Duration field after Area is set
+          setTimeout(() => {
+            setFocusOnDurationField(dialog);
+          }, 300);
         }, 500);
       }
     }, 300);
